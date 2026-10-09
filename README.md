@@ -1,33 +1,33 @@
 # Cardy — Business Card → Contact (Android)
 
-Kotlin + Jetpack Compose. On-device OCR with Google ML Kit (bundled model, works offline).
+Scan a business card, review the details, save to Contacts or WhatsApp the person. On-device OCR (Google ML Kit), works offline.
+
+## Download
+**Latest APK:** https://github.com/chairulm/cardy/releases/latest → `Cardy.apk`
+Install: open the file on your phone, allow "Install unknown apps". Android 7.0+.
 
 ## Features
-- Capture card with camera, pick from gallery, or share an image into the app
-- Extracts: name, job title, company, mobile, office phone, fax, email, website, address
-- All fields editable before saving
-- **Save to Contacts** — opens the system "New contact" screen pre-filled (no contacts permission needed; you pick Google/phone account)
-- **vCard** — share as .vcf via WhatsApp/email
-- Raw OCR text view for troubleshooting
+- **In-app camera with card frame** — fit the card in the frame; image is cropped to the card. Flash toggle and vertical-card mode.
+- Gallery import, or share an image into Cardy from any app
+- Extracts name, title, company, mobile, office phone, fax, email, website, address — all editable
+- **Save to Contacts** — pre-filled system contact screen (no contacts permission needed)
+- **WhatsApp** — message the person before or after saving, with an editable greeting template (`{name}`, `{fullname}`, `{company}`)
+- **Archive** — every scanned card (image + details) is kept in-app; search, reopen, re-save, delete
+- Share as vCard
+- Settings: default country code (62 Indonesia) for numbers starting with 0
 
 ## Build
-**Android Studio:** File → Open → `Cardy` folder → Run (needs Android SDK 35, JDK 17).
-
-**CLI:** `./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`
-
-**GitHub (no local SDK):** push this folder to a GitHub repo → Actions tab → "Build APK" run → download artifact `Cardy-debug-apk`.
-
-Install on phone: enable "Install unknown apps" for your file manager, open the APK.
+- Every push to `main` builds the APK on GitHub Actions and publishes a Release.
+- Local: open in Android Studio, or `./gradlew assembleDebug`.
+- Builds are signed with a fixed debug key (`app/debug.keystore`) so new versions install over old ones. Not for Play Store.
 
 ## Code map
 | File | Purpose |
 |---|---|
-| `CardParser.kt` | Heuristic field extraction (pure Kotlin; ID/MY/AU phone formats, ID/EN keywords) |
-| `CardViewModel.kt` | ML Kit OCR → parser → UI state |
-| `ContactSaver.kt` | Contacts insert intent + vCard export |
-| `MainActivity.kt` | Compose UI |
-
-## Tuning
-Add keywords to `TITLE_WORDS`, `COMPANY_WORDS`, `ADDRESS_WORDS` in `CardParser.kt` to improve detection for your region. Name is chosen by largest text height + match against email local-part.
-
-Specs: minSdk 24 (Android 7.0), targetSdk 35. Latin script only (add `text-recognition-chinese` etc. for CJK cards).
+| `CardParser.kt` | Heuristic field extraction (ID/MY/AU phone formats, ID/EN keywords) |
+| `CameraScreen.kt` | CameraX preview, guide frame overlay, crop-to-frame |
+| `Archive.kt` | Archive storage (JSON index + images in app storage) |
+| `WhatsApp.kt` | Number normalisation, wa.me deep link, settings |
+| `CardViewModel.kt` | OCR → parser → state, archive sync |
+| `ContactSaver.kt` | Contacts insert intent + vCard |
+| `MainActivity.kt` | Compose UI: review, archive, dialogs |

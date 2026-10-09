@@ -1,11 +1,9 @@
 package id.chairul.cardy
 
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.provider.ContactsContract
 import android.provider.ContactsContract.CommonDataKinds
-import android.widget.Toast
 
 /**
  * Opens the system "New contact" screen pre-filled with the card data.
@@ -13,8 +11,8 @@ import android.widget.Toast
  */
 object ContactSaver {
 
-    fun open(context: Context, c: CardData) {
-        val intent = Intent(ContactsContract.Intents.Insert.ACTION).apply {
+    fun intent(c: CardData): Intent =
+        Intent(ContactsContract.Intents.Insert.ACTION).apply {
             type = ContactsContract.RawContacts.CONTENT_TYPE
             putExtra(ContactsContract.Intents.Insert.NAME, c.name)
             putExtra(ContactsContract.Intents.Insert.COMPANY, c.company)
@@ -50,12 +48,6 @@ object ContactSaver {
             }
             putExtra("finishActivityOnSaveCompleted", true)
         }
-        try {
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, "No contacts app found", Toast.LENGTH_LONG).show()
-        }
-    }
 
     /** vCard 3.0 text, for sharing via WhatsApp / email. */
     fun toVCard(c: CardData): String = buildString {
